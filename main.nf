@@ -188,15 +188,14 @@ workflow {
     } \
     | groupTuple() 
 
-    //db = downloadBlastDB()
-    db.view()
+    db = downloadBlastDB()
 
-    // concatenated = concatenateFastq(grouped_samples)
-    // cleaned = fastp(concatenated)
-    // downsampled = downsample(cleaned.out)
-    // assemblies = consensus(downsampled)
-    // blastOut = blast(assemblies)
-    // parsing(blastOut)
+    concatenated = concatenateFastq(grouped_samples)
+    cleaned = fastp(concatenated)
+    downsampled = downsample(cleaned.out)
+    assemblies = consensus(downsampled)
+    blastOut = blast(assemblies)
+    parsing(blastOut)
 
     // fastp report
     // qcReport(cleaned.json)
