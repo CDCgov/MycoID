@@ -172,6 +172,15 @@ workflow {
         error "ERROR: Missing required 'User' argument. Please specify your CDC USER ID using '--user'."
     }
 
+    def blast_db_dir = file("${params.dbDir}/blastdb")
+    if (blast_db_dir.exists()) {
+        println "Blast database exists, skipping download."
+        kraken_db = Channel.value(blast_db_dir)
+    } else {
+        println "Blast database downloading now..."
+        kraken_db = downloadBlastDB()        
+    }
+
     grouped_samples = Channel.fromPath("${params.input}/*/*.fastq.gz", checkIfExists:true) \
     | map { file -> 
       def key = file.parent.name
