@@ -6,36 +6,53 @@
     "description": "Fungal Species Identification using nanopore sequencing data.",
     "url": "https://github.com/CDCgov/MycoID",
     "type": "object",
-    "properties": {
+    "definitions": {
         "input": {
-            "type": "string",
-            "description": "Path to the input directory including all samples"
+            "title": "Input Options",
+            "type": "object",
+            "fa_icon": "fas fa-arrow-right",
+            "description": "Parameters for finding and handling input data for analysis.",
+            "properties": {
+                "input": {
+                    "type": "string",
+                    "format": "path",
+                    "title": "Input Directory",
+                    "description": "ONT FASTQ files to use in the analysis."
+                },
+                "user": {
+                    "type": "string",
+                    "description": "CDC User ID"
+                },
+                "percent": {
+                    "type": "integer",
+                    "default": 98,
+                    "description": "Minimum percent identity"
+                },
+                "length_limit": {
+                    "type": "integer",
+                    "default": 1500,
+                    "description": "Maximum read length for ONT reads"
+                },
+                "length_required": {
+                    "type": "integer",
+                    "default": 900,
+                    "description": "Minimum read length for ONT reads"
+                }
+            }
         },
         "output": {
-            "type": "string",
-            "default": "results",
-            "description": "Path to output directory. Default: 'results'"
-        },
-        "user": {
-            "type": "string",
-            "description": "CDC User ID"
-        },
-        "percent": {
-            "type": "integer",
-            "default": 98,
-            "description": "Minimum percent identity"
-        },
-        "length_limit": {
-            "type": "integer",
-            "default": 1500,
-            "description": "Maximum read length for ONT reads"
-        },
-        "length_required": {
-            "type": "integer",
-            "default": 900,
-            "description": "Minimum read length for ONT reads"
+            "title": "Output Options",
+            "type": "object",
+            "fa_icon": "fas fa-arrow-left",
+            "description": "Parameters for saving and namin workflow outputs.",
+            "properties": {
+                "output": {
+                    "type": "string",
+                    "default": "output",
+                    "format": "directory-path",
+                    "description": "Directory for output of all workflow results."
+                }
+            }
         }
     }
 }
-
-       
