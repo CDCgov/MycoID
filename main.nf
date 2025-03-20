@@ -1,6 +1,6 @@
 #!/usr/bin/env nextflow
 
-params.taxidlist = "${workflow.projectDir}/fungal_taxids.txt"
+params.taxidlist = "${workflow.projectDir}/data/taxID/fungal_taxID.txt"
 params.dbDir = "${workflow.projectDir}/data/"
 params.schema_path = "${workflow.projectDir}/nextflow_schema.json"
  
