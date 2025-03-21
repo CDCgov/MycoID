@@ -10,7 +10,7 @@ process downloadBlastDB {
     publishDir "${params.store_dir}", mode: 'copy'
 
     output: 
-    path("${params.store_dir}/*")
+    path("*")
 
     script:
     """
