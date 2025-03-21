@@ -82,7 +82,7 @@ process consensus {
 
     script:
     """ 
-    gunzip -c ${fastq} > ${sample}.fastq
+    gunzip -c "${fastq}" > "${sample}.fastq"
     NGSpeciesID --ont --consensus --medaka --fastq ${sample}.fastq --outfolder ${sample}
     cat ${sample}/*.fasta > ${sample}.fasta
     """
