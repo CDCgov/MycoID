@@ -54,21 +54,21 @@ process fastp {
     """
 }
 
-// process downsample {
+process downsample {
 
-//     publishDir "${params.output}/downsampled", mode: 'copy', pattern: '*.fastq'
+    publishDir "${params.output}/downsampled", mode: 'copy', pattern: '*.fastq'
 
-//     input:
-//     tuple val(sample), path(fastq)
+    input:
+    tuple val(sample), path(fastq)
 
-//     output:
-//     tuple val(sample), path("${sample}_downsampled.fastq")
+    output:
+    tuple val(sample), path("${sample}_downsampled.fastq")
 
-//     script:
-//     """
-//     ontime --to 3h -o ${sample}_downsampled.fastq ${fastq}
-//     """
-// }
+    script:
+    """
+    ontime --to 3h -o ${sample}_downsampled.fastq ${fastq}
+    """
+}
 
 process consensus {
 
@@ -82,8 +82,7 @@ process consensus {
 
     script:
     """ 
-    gunzip -c "${fastq}" > "${sample}.fastq"
-    NGSpeciesID --ont --consensus --medaka --fastq ${sample}.fastq --outfolder ${sample}
+    NGSpeciesID --ont --consensus --medaka --fastq ${fastq} --outfolder ${sample}
     cat ${sample}/*.fasta > ${sample}.fasta
     """
 
@@ -192,8 +191,8 @@ workflow {
 
     concatenated = concatenateFastq(grouped_samples)
     cleaned = fastp(concatenated)
-    // downsampled = downsample(cleaned.out)
-    assemblies = consensus(cleaned.out)
+    downsampled = downsample(cleaned.out)
+    assemblies = consensus(downsampled)
     blastOut = blast(assemblies)
     parsing(blastOut)
 
