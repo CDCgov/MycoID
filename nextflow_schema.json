@@ -38,6 +38,14 @@
                     "default": 900,
                     "description": "Minimum read length for ONT reads"
                 }
+                "store_dir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "title": "blast database directory name",
+                    "description": "Where to store initial download of blast database.",
+                    "help_text": "database set selected will be downloaded as part of the workflow and saved in this location, on subsequent runs it will use this as the database. ",
+                    "hidden": true,
+                    "default": "blastdb"
             }
         },
         "output": {
