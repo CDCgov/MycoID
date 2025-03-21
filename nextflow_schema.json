@@ -38,6 +38,7 @@
                     "default": 900,
                     "description": "Minimum read length for ONT reads"
                 }
+            }
         },
         "output": {
             "title": "Output Options",
