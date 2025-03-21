@@ -1,16 +1,16 @@
 #!/usr/bin/env nextflow
 
 params.taxidlist = "${workflow.projectDir}/data/taxID/fungal_taxID.txt"
-params.dbDir = "${workflow.projectDir}/data/"
 params.schema_path = "${workflow.projectDir}/nextflow_schema.json"
+params.store_dir = "${workflow.projectDir}/data/"
  
 process downloadBlastDB {
     tag "Downloading 'Core nt' BLAST database"
 
-    publishDir "${params.dbDir}", mode: 'copy'
+    publishDir "${params.store_dir}", mode: 'copy'
 
     output: 
-    path("*")
+    path("${params.store_dir}/*")
 
     script:
     """
@@ -100,7 +100,7 @@ process blast {
 
     script:
     """
-    export BLASTDB=${params.dbDir}/blastdb
+    export BLASTDB=${params.store_dir}/blastdb
     blastn -query ${fasta} -db core_nt -taxidlist ${params.taxidlist} -dust no -max_hsps 1 -outfmt "10 sscinames sseqid staxids evalue qseq length pident qlen" > ${sample}_blast.csv
     awk -F, '\$1 !~ /uncultured|sp\\.|fungal|subsp\\./' ${sample}_blast.csv > ${sample}_classification.csv
     """
@@ -173,7 +173,7 @@ workflow {
         error "ERROR: Missing required 'User' argument. Please specify your CDC USER ID using '--user'."
     }
 
-    def blast_db_dir = file("${params.dbDir}/blastdb")
+    def blast_db_dir = file("${params.store_dir}/blastdb")
     if (blast_db_dir.exists()) {
         println "Blast database exists, skipping download."
         blast_db = Channel.value(blast_db_dir)
