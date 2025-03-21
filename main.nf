@@ -2,7 +2,7 @@
 
 params.taxidlist = "${workflow.projectDir}/data/taxID/fungal_taxID.txt"
 params.schema_path = "${workflow.projectDir}/nextflow_schema.json"
-params.store_dir = "${workflow.projectDir}/data/"
+params.store_dir = "${workflow.projectDir}/data/epi2me/data"
  
 process downloadBlastDB {
     tag "Downloading 'Core nt' BLAST database"
