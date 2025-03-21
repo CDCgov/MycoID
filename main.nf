@@ -16,7 +16,7 @@ process downloadBlastDB {
     """
     mkdir -p blastdb
     cd blastdb
-    update_blastdb.pl --decompress core_nt
+    update_blastdb.pl --decompress ITS_RefSeq_Fungi
     """
 
 }
