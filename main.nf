@@ -2,7 +2,7 @@
 
 params.taxidlist = "${workflow.projectDir}/data/taxID/fungal_taxID.txt"
 params.schema_path = "${workflow.projectDir}/nextflow_schema.json"
-params.store_dir = "${HOME}/grid/data/epi2me/data"
+params.store_dir = "${HOME}/data/epi2me/data"
  
 process downloadBlastDB {
     tag "Downloading 'Core nt' BLAST database"
@@ -54,21 +54,21 @@ process fastp {
     """
 }
 
-process downsample {
+// process downsample {
 
-    publishDir "${params.output}/downsampled", mode: 'copy', pattern: '*.fastq'
+//     publishDir "${params.output}/downsampled", mode: 'copy', pattern: '*.fastq'
 
-    input:
-    tuple val(sample), path(fastq)
+//     input:
+//     tuple val(sample), path(fastq)
 
-    output:
-    tuple val(sample), path("${sample}_downsampled.fastq")
+//     output:
+//     tuple val(sample), path("${sample}_downsampled.fastq")
 
-    script:
-    """
-    ontime --to 3h -o ${sample}_downsampled.fastq ${fastq}
-    """
-}
+//     script:
+//     """
+//     ontime --to 3h -o ${sample}_downsampled.fastq ${fastq}
+//     """
+// }
 
 process consensus {
 
@@ -82,7 +82,8 @@ process consensus {
 
     script:
     """ 
-    NGSpeciesID --ont --consensus --medaka --fastq ${fastq} --outfolder ${sample}
+    gunzip -c ${fastq} > ${sample}.fastq
+    NGSpeciesID --ont --consensus --medaka --fastq ${sample}.fastq --outfolder ${sample}
     cat ${sample}/*.fasta > ${sample}.fasta
     """
 
@@ -191,8 +192,8 @@ workflow {
 
     concatenated = concatenateFastq(grouped_samples)
     cleaned = fastp(concatenated)
-    downsampled = downsample(cleaned.out)
-    assemblies = consensus(downsampled)
+    // downsampled = downsample(cleaned.out)
+    assemblies = consensus(cleaned.out)
     blastOut = blast(assemblies)
     parsing(blastOut)
 
