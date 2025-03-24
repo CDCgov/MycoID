@@ -105,7 +105,7 @@ process parsing {
     def version = params.version
     def runDate = new Date().format('yyyy-MM-dd')
     """
-    awk -F',' '\$7 >= ${params.percent} && \$4 < 0.0001 && \$6 > 0.8*\$8' ${blast} > ${sample}_filtered.csv
+    awk -F',' '\$7 >= ${params.percent} && \$4 < 0.0001 && \$6 > 0.5*\$8' ${blast} > ${sample}_filtered.csv
     sort -t',' -k7,7nr -k4,4n -k6,6nr ${sample}_filtered.csv > ${sample}_sorted_all.csv
     cut -d',' -f1,2,4-7 ${sample}_sorted_all.csv > ${sample}_sorted.csv
     echo "sscinames,sseqid,evalue,qseq,length,pident" | cat - ${sample}_sorted.csv > ${sample}_report.csv
