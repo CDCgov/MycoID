@@ -83,7 +83,7 @@ process blast {
     script:
     """
     update_blastdb.pl --decompress taxdb
-    blastn -query ${fasta} -db core_nt -staxids 4751 -remote -dust no -max_hsps 1 -outfmt "10 sscinames sseqid staxids evalue qseq length pident qlen" > ${sample}_blast.csv
+    blastn -query ${fasta} -db core_nt -taxids 4751 -remote -dust no -max_hsps 1 -outfmt "10 sscinames sseqid staxids evalue qseq length pident qlen" > ${sample}_blast.csv
     awk -F, '\$1 !~ /uncultured|sp\\.|fungal|subsp\\./' ${sample}_blast.csv > ${sample}_classification.csv
     """
 
