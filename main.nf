@@ -2,23 +2,6 @@
 
 params.schema_path = "${workflow.projectDir}/nextflow_schema.json"
 params.store_dir = "${HOME}/epi2me/data"
- 
-process downloadBlastDB {
-    tag "Downloading 'Core nt' BLAST database"
-
-    publishDir "${params.store_dir}", mode: 'copy'
-
-    output: 
-    path("*")
-
-    script:
-    """
-    mkdir -p blastdb
-    cd blastdb
-    update_blastdb.pl --decompress ITS_RefSeq_Fungi
-    """
-
-}
 
 process concatenateFastq {
 
@@ -99,7 +82,8 @@ process blast {
 
     script:
     """
-    blastn -query ${fasta} -db core_nt -remote -dust no -max_hsps 1 -outfmt "10 sscinames sseqid staxids evalue qseq length pident qlen" > ${sample}_blast.csv
+    update_blastdb.pl --decompress taxdb
+    blastn -query ${fasta} -db core_nt -staxids 4751 -remote -dust no -max_hsps 1 -outfmt "10 sscinames sseqid staxids evalue qseq length pident qlen" > ${sample}_blast.csv
     awk -F, '\$1 !~ /uncultured|sp\\.|fungal|subsp\\./' ${sample}_blast.csv > ${sample}_classification.csv
     """
 
@@ -169,15 +153,6 @@ workflow {
     }
     if (!params.user) {
         error "ERROR: Missing required 'User' argument. Please specify your CDC USER ID using '--user'."
-    }
-
-    def blast_db_dir = file("${params.store_dir}/blastdb")
-    if (blast_db_dir.exists()) {
-        println "Blast database exists, skipping download."
-        blast_db = Channel.value(blast_db_dir)
-    } else {
-        println "Blast database downloading now..."
-        blast_db = downloadBlastDB()        
     }
 
     grouped_samples = Channel.fromPath("${params.input}/*/*.fastq.gz", checkIfExists:true) \
