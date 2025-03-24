@@ -100,7 +100,7 @@ process blast {
     script:
     """
     export BLASTDB=${params.store_dir}/blastdb
-    blastn -query ${fasta} -dust no -max_hsps 1 -outfmt "10 sscinames sseqid staxids evalue qseq length pident qlen" > ${sample}_blast.csv
+    blastn -query ${fasta} -db ITS_RefSeq_Fungi -dust no -max_hsps 1 -outfmt "10 sscinames sseqid staxids evalue qseq length pident qlen" > ${sample}_blast.csv
     awk -F, '\$1 !~ /uncultured|sp\\.|fungal|subsp\\./' ${sample}_blast.csv > ${sample}_classification.csv
     """
 
