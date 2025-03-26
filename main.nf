@@ -1,7 +1,7 @@
 #!/usr/bin/env nextflow
 
 params.schema_path = "${workflow.projectDir}/nextflow_schema.json"
-params.store_dir = "${HOME}/epi2me/data"
+
 
 process concatenateFastq {
 
@@ -98,6 +98,7 @@ process parsing {
 
     output:
     tuple val(sample), path("${sample}_report.csv")
+    path("final_report.csv")
 
     script:
     def scriptName = "MycoID - Fungal ID Analysis"
@@ -105,11 +106,16 @@ process parsing {
     def version = params.version
     def runDate = new Date().format('yyyy-MM-dd')
     """
-    awk -F',' '\$7 >= ${params.percent} && \$4 < 0.0001 && \$6 > 0.5*\$8' ${blast} > ${sample}_filtered.csv
+    awk -F',' '\$7 >= ${params.percent} && \$4 < 0.0001 && \$6 > 0.8*\$8' ${blast} > ${sample}_filtered.csv
     sort -t',' -k7,7nr -k4,4n -k6,6nr ${sample}_filtered.csv > ${sample}_sorted_all.csv
     cut -d',' -f1,2,4-7 ${sample}_sorted_all.csv > ${sample}_sorted.csv
     echo "sscinames,sseqid,evalue,qseq,length,pident" | cat - ${sample}_sorted.csv > ${sample}_report.csv
-    echo -e "${scriptName}\nUser: ${user}\nVersion: ${version}\nDate: ${runDate}\nSample: ${sample}\n\n"  | cat - ${sample}_report.csv > temp.txt && mv temp.txt ${sample}_report.csv
+    echo -e "${scriptName}\nUser: ${user}\nVersion: ${version}\nDate: ${runDate}\nSample: ${sample}\n"  | cat - ${sample}_report.csv > temp.txt && mv temp.txt ${sample}_report.csv
+
+    if [ ! -f final_report.csv]; then
+        echo "sscinames,sseqid,evalue,qseq,length,pident" > final_report.csv
+    fi
+    tail -n +8 ${sample}_report.csv | awk -v sample="${sample}" '{print sample "," \$0}' >> final_report.csv
     """
 
 }
