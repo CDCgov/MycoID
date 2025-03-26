@@ -48,7 +48,7 @@ process downsample {
 
     script:
     """
-    ontime --to 3h -o ${sample}_downsampled.fastq ${fastq}
+    ontime --to 6h -o ${sample}_downsampled.fastq ${fastq}
     """
 }
 
@@ -84,7 +84,7 @@ process blast {
     """
     update_blastdb.pl --decompress taxdb
     blastn -query ${fasta} -db core_nt -entrez_query "Fungi[Organism]" -remote -dust no -max_hsps 1 -outfmt "10 sscinames sseqid staxids evalue qseq length pident qlen" > ${sample}_blast.csv
-    awk -F, '\$1 !~ /uncultured|sp\\.|fungal|subsp\\./' ${sample}_blast.csv > ${sample}_classification.csv
+    awk -F, '\$1 !~ /uncultured|sp\\.|fungal|fungus|subsp\\./' ${sample}_blast.csv > ${sample}_classification.csv
     """
 
 }
