@@ -78,27 +78,32 @@ process blast {
     tuple val(sample), path(fasta)
 
     output:
-    tuple val(sample), path("${sample}_classification.csv")
+    path("${sample}_classification.csv")
 
     script:
     """
+    # run blast
     update_blastdb.pl --decompress taxdb
     blastn -query ${fasta} -db core_nt -entrez_query "Fungi[Organism]" -remote -dust no -max_hsps 1 -outfmt "10 sscinames sseqid staxids evalue qseq length pident qlen" > ${sample}_blast.csv
-    awk -F, '\$1 !~ /uncultured|sp\\.|fungal|fungus|subsp\\./' ${sample}_blast.csv > ${sample}_classification.csv
+    
+    # filter, sort and format the output
+    awk -F, '\$1 !~ /uncultured|sp\\.|fungal|fungus|subsp\\./ && \$7 >= ${params.percent} && \$4 < 0.0001 && \$6 > 0.8*\$8' ${sample}_blast.csv | \
+    sort -t',' -k7,7nr -k4,4n -k6,6nr | \
+    cut -d',' -f1,2,4-7 | \
+    awk -v sample="${sample}" 'BEGIN {print "sample,sscinames,sseqid,evalue,qseq,length,pident"} {print sample "," \$0}' > ${sample}_classification.csv
     """
 
 }
 
-process parsing {
+process report {
 
     publishDir "${params.output}/report", mode: 'copy'
 
     input:
-    tuple val(sample), path(blast)
+    path(blast)
 
     output:
-    tuple val(sample), path("${sample}_report.csv")
-    path("final_report.csv")
+    path("final_summary.csv")
 
     script:
     def scriptName = "MycoID - Fungal ID Analysis"
@@ -106,16 +111,10 @@ process parsing {
     def version = params.version
     def runDate = new Date().format('yyyy-MM-dd')
     """
-    awk -F',' '\$7 >= ${params.percent} && \$4 < 0.0001 && \$6 > 0.8*\$8' ${blast} > ${sample}_filtered.csv
-    sort -t',' -k7,7nr -k4,4n -k6,6nr ${sample}_filtered.csv > ${sample}_sorted_all.csv
-    cut -d',' -f1,2,4-7 ${sample}_sorted_all.csv > ${sample}_sorted.csv
-    echo "sscinames,sseqid,evalue,qseq,length,pident" | cat - ${sample}_sorted.csv > ${sample}_report.csv
-    echo -e "${scriptName}\nUser: ${user}\nVersion: ${version}\nDate: ${runDate}\nSample: ${sample}\n"  | cat - ${sample}_report.csv > temp.txt && mv temp.txt ${sample}_report.csv
-
-    if [ ! -f final_report.csv]; then
-        echo "sscinames,sseqid,evalue,qseq,length,pident" > final_report.csv
-    fi
-    tail -n +8 ${sample}_report.csv | awk -v sample="${sample}" '{print sample "," \$0}' >> final_report.csv
+    #combined
+    touch final_summary.csv
+    cat ${blast} >> final_summary.csv
+    echo -e "${scriptName}\nUser: ${user}\nVersion: ${version}\nDate: ${runDate}\n"  | cat - final_summary.csv > temp.txt && mv temp.txt final_summary.csv
     """
 
 }
@@ -172,10 +171,10 @@ workflow {
     cleaned = fastp(concatenated)
     downsampled = downsample(cleaned.out)
     assemblies = consensus(downsampled)
-    blastOut = blast(assemblies)
-    parsing(blastOut)
+    blastOut = blast(assemblies).collect()
+    blastOut.view()
+    report(blastOut)
 
-    // fastp report
-    // qcReport(cleaned.json)
+
     
 }
