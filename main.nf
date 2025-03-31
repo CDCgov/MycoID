@@ -48,7 +48,7 @@ process downsample {
 
     script:
     """
-    ontime --to 6h -o ${sample}_downsampled.fastq ${fastq}
+    ontime --to 10h -o ${sample}_downsampled.fastq ${fastq}
     """
 }
 
