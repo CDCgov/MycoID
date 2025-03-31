@@ -78,7 +78,7 @@ process blast {
     tuple val(sample), path(fasta)
 
     output:
-    path("${sample}_classification.csv")
+    tuple val(sample), path("${sample}_classification.csv")
 
     script:
     """
@@ -87,17 +87,41 @@ process blast {
     blastn -query ${fasta} -db core_nt -entrez_query "Fungi[Organism]" -remote -dust no -max_hsps 1 -outfmt "10 sscinames sseqid staxids evalue qseq length pident qlen" > ${sample}_blast.csv
     
     # filter, sort and format the output
-    awk -F, '\$1 !~ /uncultured|sp\\.|fungal|fungus|subsp\\./ && \$7 >= ${params.percent} && \$4 < 0.0001 && \$6 > 0.8*\$8' ${sample}_blast.csv | \
+    awk -F, '\$1 !~ /uncultured|sp\\.|fungal|fungus|subsp\\./ && \$7 >= ${params.percent} && \$4 < 0.0001 && \$6 > 0.5*\$8' ${sample}_blast.csv | \
     sort -t',' -k7,7nr -k4,4n -k6,6nr | \
     cut -d',' -f1,2,4-7 | \
-    awk -v sample="${sample}" 'BEGIN {print "sample,sscinames,sseqid,evalue,qseq,length,pident"} {print sample "," \$0}' > ${sample}_classification.csv
+    awk -v sample="${sample}" '{print sample "," \$0}' > ${sample}_classification.csv
     """
 
 }
 
-process report {
+process sample_report {
 
-    publishDir "${params.output}/report", mode: 'copy'
+    publishDir "${params.output}/report/sample", mode: 'copy'
+
+    input:
+    tuple val(sample), path(blast)
+
+    output:
+    path("${sample}_summary.csv")
+
+    script:
+    def scriptName = "MycoID - Fungal ID Analysis"
+    def user = params.user
+    def version = params.version
+    def runDate = new Date().format('yyyy-MM-dd')
+    """
+    touch ${sample}_summary.csv
+    echo "sscinames,sseqid,evalue,qseq,length,pident" > ${sample}_summary.csv
+    cat ${blast} >> ${sample}_summary.csv
+    echo -e "${scriptName}\nUser: ${user}\nVersion: ${version}\nDate: ${runDate}\n"  | cat - ${sample}_summary.csv > temp.txt && mv temp.txt ${sample}_summary.csv
+    """
+}
+
+
+process combined_report {
+
+    publishDir "${params.output}/report/combined", mode: 'copy'
 
     input:
     path(blast)
@@ -113,6 +137,7 @@ process report {
     """
     #combined
     touch final_summary.csv
+    echo "sscinames,sseqid,evalue,qseq,length,pident" > final_summary.csv
     cat ${blast} >> final_summary.csv
     echo -e "${scriptName}\nUser: ${user}\nVersion: ${version}\nDate: ${runDate}\n"  | cat - final_summary.csv > temp.txt && mv temp.txt final_summary.csv
     """
@@ -171,10 +196,9 @@ workflow {
     cleaned = fastp(concatenated)
     downsampled = downsample(cleaned.out)
     assemblies = consensus(downsampled)
-    blastOut = blast(assemblies).collect()
-    blastOut.view()
-    report(blastOut)
+    blastOut = blast(assemblies)
 
-
-    
+    // Reports
+    sample_report(blastOut)
+    combined_report(blastOut.map { it[1] }.collect())
 }
