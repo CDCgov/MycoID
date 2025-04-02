@@ -113,8 +113,8 @@ process sample_report {
     """
     touch ${sample}_summary.csv
     echo "sscinames,sseqid,evalue,qseq,length,pident" > ${sample}_summary.csv
-    cat ${blast} >> ${sample}_summary.csv
-    echo -e "${scriptName}\nUser: ${user}\nVersion: ${version}\nDate: ${runDate}\n"  | cat - ${sample}_summary.csv > temp.txt && mv temp.txt ${sample}_summary.csv
+    cat ${blast} | cut -d' ' -f2- >> ${sample}_summary.csv
+    echo -e "${scriptName}\nUser: ${user}\nVersion: ${version}\nDate: ${runDate}\nSample: ${sample}\n"  | cat - ${sample}_summary.csv > temp.txt && mv temp.txt ${sample}_summary.csv
     """
 }
 
