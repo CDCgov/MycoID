@@ -48,13 +48,13 @@ process downsample {
 
     script:
     """
-    ontime --to 10h -o ${sample}_downsampled.fastq ${fastq}
+    ontime --to 12h -o ${sample}_downsampled.fastq ${fastq}
     """
 }
 
 process consensus {
 
-    publishDir "${params.output}/consensus"
+    publishDir "${params.output}/consensus", mode: 'copy', pattern: '*.fasta'
 
     input:
     tuple val(sample), path(fastq)
