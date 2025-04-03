@@ -87,7 +87,7 @@ process blast {
     blastn -query ${fasta} -db core_nt -entrez_query "Fungi[Organism]" -remote -evalue 0.00001 -outfmt "10 sscinames sseqid staxids evalue qseq length pident qlen qcovs slen" > ${sample}_blast.csv
     
     # filter, sort and format the output
-    awk -F, '\$1 !~ /uncultured|sp\\.|fungal|fungus|subsp\\./ && \$7 >= ${params.percent}' ${sample}_blast.csv | \
+    awk -F, '\$1 !~ /uncultured|sp\\.|fungal|fungus|subsp\\./ && \$7 >= ${params.percent} && \$6 >= 0.8*\$8' ${sample}_blast.csv | \
     sort -t',' -k7,7nr -k4,4n -k6,6nr | \
     cut -d',' -f1,2,4-7 | \
     awk -v sample="${sample}" '{print sample "," \$0}' > ${sample}_classification.csv
