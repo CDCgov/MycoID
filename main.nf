@@ -84,10 +84,10 @@ process blast {
     """
     # run blast
     update_blastdb.pl --decompress taxdb
-    blastn -query ${fasta} -db core_nt -entrez_query "Fungi[Organism]" -remote -dust no -max_hsps 1 -outfmt "10 sscinames sseqid staxids evalue qseq length pident qlen" > ${sample}_blast.csv
+    blastn -query ${fasta} -db core_nt -entrez_query "Fungi[Organism]" -remote -evalue 0.00001 -outfmt "10 sscinames sseqid staxids evalue qseq length pident qlen qcovs slen" > ${sample}_blast.csv
     
     # filter, sort and format the output
-    awk -F, '\$1 !~ /uncultured|sp\\.|fungal|fungus|subsp\\./ && \$7 >= ${params.percent} && \$4 < 0.0001 && \$6 > 0.6*\$8' ${sample}_blast.csv | \
+    awk -F, '\$1 !~ /uncultured|sp\\.|fungal|fungus|subsp\\./ && \$7 >= ${params.percent}' ${sample}_blast.csv | \
     sort -t',' -k7,7nr -k4,4n -k6,6nr | \
     cut -d',' -f1,2,4-7 | \
     awk -v sample="${sample}" '{print sample "," \$0}' > ${sample}_classification.csv
@@ -113,7 +113,7 @@ process sample_report {
     """
     touch ${sample}_summary.csv
     echo "sscinames,sseqid,evalue,qseq,length,pident" > ${sample}_summary.csv
-    cat ${blast} | cut -d' ' -f2- >> ${sample}_summary.csv
+    cat ${blast} | cut -d',' -f2- >> ${sample}_summary.csv
     echo -e "${scriptName}\nUser: ${user}\nVersion: ${version}\nDate: ${runDate}\nSample: ${sample}\n"  | cat - ${sample}_summary.csv > temp.txt && mv temp.txt ${sample}_summary.csv
     """
 }
