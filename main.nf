@@ -84,7 +84,7 @@ process blast {
     """
     # run blast
     update_blastdb.pl --decompress taxdb
-    blastn -query ${fasta} -db core_nt -entrez_query "Fungi[Organism]" -remote -evalue 0.00001 -outfmt "10 sscinames sseqid staxids evalue qseq length pident qlen qcovs slen" > ${sample}_blast.csv
+    blastn -query ${fasta} -db core_nt -entrez_query "Fungi[Organism]" -remote -evalue 0.00001 -outfmt "10 sscinames sseqid staxids evalue qseq length pident slen" > ${sample}_blast.csv
     
     # filter, sort and format the output
     awk -F, '\$1 !~ /uncultured|sp\\.|fungal|fungus|subsp\\./ && \$7 >= ${params.percent} && \$6 >= 0.8*\$8' ${sample}_blast.csv | \
