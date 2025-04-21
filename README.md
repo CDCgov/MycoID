@@ -1,5 +1,25 @@
-# MycoID
-Fungal Species Identification using Oxford Nanopore Technology
+# MycoID 
+**My**cology species **Id**entification - Fungal Species Identification using Oxford Nanopore Technology
+
+# Description
+
+This Nextflow pipeline automates fungal species identification from Oxford Nanopore Technologies (ONT) sequencing reads. It provides a streamlined approach to process raw sequencing data, ensuring high-quality assemblies and accurate species classification. The workflow integrates multiple bioinformatics tools, including Fastp-long for quality control, NGSpeciesID for getting sequence Consensus, and BLAST for species identification using the NCBI nt database. This pipeline is designed for reproducibility, scalability, and ease of use, making it suitable for applications in mycological research.
+
+# Pipeline Workflow
+
+The pipeline follows these steps:
+1.	Concatenation of ONT FASTQ Files: Merges multiple ONT FASTQ files into a single file
+2.	Quality Control with Fastp-long: Performs read filtering, trimming, and quality assessment to remove low-quality reads.
+3.	Consensus from NGSpeciesID: A high confidence “Consensus” sequence is generated which is the most likely sequence of the original DNA.
+4.	BLAST Analysis for Species Identification: Compares consensus sequence against the NCBI nt database to determine fungal species.
+5.	Output Generation: Produces final BLAST results indicating identified fungal species, along with intermediate quality control and assembly files for further analysis.
+
+# Usage
+
+Basic run on command line:
+```
+nextflow run --input <path/to/inDir> --output <path/to/outDir> --user <CDC user ID> -profile singularity
+```
 
 # CDCgov GitHub Organization Open Source Project Template
 
