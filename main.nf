@@ -5,6 +5,8 @@ params.schema_path = "${workflow.projectDir}/nextflow_schema.json"
 
 process concatenateFastq {
 
+    tag { sample }
+
     publishDir "${params.output}/concatenated", mode: 'copy', pattern: '*.gz'
 
     input:
@@ -20,6 +22,8 @@ process concatenateFastq {
 }
  
 process fastp {
+
+    tag { sample }
 
     publishDir "${params.output}/cleaned", mode: 'copy', pattern: '*.gz'
 
@@ -38,6 +42,8 @@ process fastp {
 
 process downsample {
 
+    tag { sample }
+
     publishDir "${params.output}/downsampled", mode: 'copy', pattern: '*.fastq'
 
     input:
@@ -53,6 +59,8 @@ process downsample {
 }
 
 process consensus {
+
+    tag { sample }
 
     publishDir "${params.output}/consensus", mode: 'copy', pattern: '*.fasta'
 
@@ -71,6 +79,8 @@ process consensus {
 }
 
 process blast {
+
+    tag { sample }
 
     publishDir "${params.output}/blast", mode: 'copy'
 
@@ -145,6 +155,8 @@ process combined_report {
 }
 
 process qcReport {
+
+    tag { sample }
 
     publishDir "${params.output}/qc_report", mode: 'copy'
 
