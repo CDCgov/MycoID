@@ -5,9 +5,6 @@ params.schema_path = "${workflow.projectDir}/nextflow_schema.json"
 
 process concatenateFastq {
 
-    tag { sample }
-    errorStrategy 'ignore'
-
     publishDir "${params.output}/concatenated", mode: 'copy', pattern: '*.gz'
 
     input:
@@ -23,9 +20,6 @@ process concatenateFastq {
 }
  
 process fastp {
-
-    tag { sample }
-    errorStrategy 'ignore'
 
     publishDir "${params.output}/cleaned", mode: 'copy', pattern: '*.gz'
 
@@ -44,9 +38,6 @@ process fastp {
 
 process downsample {
 
-    tag { sample }
-    errorStrategy 'ignore'
-
     publishDir "${params.output}/downsampled", mode: 'copy', pattern: '*.fastq'
 
     input:
@@ -62,9 +53,6 @@ process downsample {
 }
 
 process consensus {
-
-    tag { sample }
-    errorStrategy 'ignore'
 
     publishDir "${params.output}/consensus", mode: 'copy', pattern: '*.fasta'
 
@@ -83,9 +71,6 @@ process consensus {
 }
 
 process blast {
-
-    tag { sample }
-    errorStrategy 'ignore'
 
     publishDir "${params.output}/blast", mode: 'copy'
 
@@ -112,8 +97,6 @@ process blast {
 
 process sample_report {
 
-    errorStrategy 'ignore'
-
     publishDir "${params.output}/report/sample", mode: 'copy'
 
     input:
@@ -137,8 +120,6 @@ process sample_report {
 
 
 process combined_report {
-
-    errorStrategy 'ignore'
 
     publishDir "${params.output}/report/combined", mode: 'copy'
 
@@ -164,8 +145,6 @@ process combined_report {
 }
 
 process qcReport {
-
-    errorStrategy 'ignore'
 
     tag { sample }
 
