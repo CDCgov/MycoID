@@ -64,8 +64,19 @@ process consensus {
 
     script:
     """ 
+    set +e 
+
     NGSpeciesID --ont --consensus --medaka --fastq ${fastq} --outfolder ${sample}
-    cat ${sample}/*.fasta > ${sample}.fasta
+    rc=\$?
+
+    #only create output if process succeeded and produced fasta
+    if [ \$rc -eq 0 ] && ls ${sample}/*.fasta >/dev/null 2>&1; then
+        cat ${sample}/*.fasta > ${sample}.fasta
+    else
+        rm -f ${sample}.fasta
+    fi
+
+    exit 0
     """
 
 }
@@ -198,7 +209,8 @@ workflow {
     cleaned = fastp(concatenated)
     downsampled = downsample(cleaned.out)
     assemblies = consensus(downsampled)
-    blastOut = blast(assemblies)
+    assemblies_ok = assemblies.filter { sample, fasta -> fasta && fasta.exists() }
+    blastOut = blast(assemblies_ok)
 
     // Reports
     sample_report(blastOut)
