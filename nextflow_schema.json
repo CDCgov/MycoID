@@ -21,7 +21,7 @@
                 },
                 "user": {
                     "type": "string",
-                    "description": "CDC User ID"
+                    "description": "User ID"
                 },
                 "percent": {
                     "type": "integer",
