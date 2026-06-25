@@ -18,7 +18,7 @@ The pipeline follows these steps:
 
 Basic run on command line:
 ```
-nextflow run --input <path/to/inDir> --output <path/to/outDir> --user <CDC user ID> -profile singularity
+nextflow run main.nf --input <path/to/inDir> --output <path/to/outDir> --user <CDC user ID> -profile singularity
 ```
 
 # CDCgov GitHub Organization Open Source Project Template
